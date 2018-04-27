@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 import particle
 
-magic_coeff = 0.055
+magic_coeff = 0.047
 wheel_radius = 2.7
 wheel_base_half = 7.5
 sonar_zero_distance = 13.8
@@ -37,18 +37,18 @@ def print_plot(plots=None, coords=None, bounded=True, title=None):
             y_plot.append(tuple[1])
 
     def print_p(xlabel, t_plot, y_axis, boundary=None):
-        # plt.ylabel(xlabel)
-        # plt.xlabel("t")
+        plt.ylabel(xlabel)
+        plt.xlabel("y(t)")
         plt.plot(t_plot, y_axis)
-        # if title is not None:
-        #     plt.title(title)
+        if title is not None:
+            plt.title(title)
         if boundary is not None:
             plt.axis(boundary)
         plt.show()
 
     # print_p("x(t)", t_plot, x_plot, [1509976324.240, 1509976340.20860, 0, 140] if bounded else None)
     # print_p("y(t)", t_plot, y_plot, [1509976324.240, 1509976340.20860, -10, 40] if bounded else None)
-    print_p("w(t)", y_plot, x_plot, [-10, 40, 0, 140] if bounded else None)
+    print_p("x(t)", y_plot, x_plot, [-10, 40, 0, 140] if bounded else None)
 
 
 def follow_by_wheels():
@@ -170,7 +170,7 @@ def print_log_camera_kalman():
             x_plot.append(float(row[1]))
             y_plot.append(float(row[2]))
 
-    Q = 0.5
+    Q = 1
     x_plot = kalman.apply_filter(x_plot, Q, x_cam_noise[1])
     y_plot = kalman.apply_filter(y_plot, Q, y_cam_noise[1])
     print_plot(plots=(t_plot, x_plot, y_plot), title="From camera with Kalman Q=" + str(Q))
@@ -181,7 +181,7 @@ def follow_by_gyro_kalman():
     v = []
     t = []
     angle = [0]
-    Q = 0.1
+    Q = 0.05
     with open('log_robot_2.csv') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=';')
         x = init_x
@@ -331,14 +331,13 @@ def particle_filter():
 
 
 if __name__ == '__main__':
-    # follow_by_wheels()
-    # follow_by_gyro_kalman()
-    # follow_by_gyro()
-    # print_log_camera()
-    # print_log_camera_kalman()
+    follow_by_wheels()
+    follow_by_gyro()
+    follow_by_gyro_kalman()
+    print_log_camera()
+    print_log_camera_kalman()
 
-    # sensor_fusion()
-    seed(2)
-    particle_filter()
+    sensor_fusion()
 
-    # main2()
+    # seed(2)
+    # particle_filter()
