@@ -5,7 +5,7 @@ The best result shown by sensor fusion (odometer and gyroscope). Gyroscope by hi
 
 Better results shown by odometer, it has more accuracy. Also, I can't apply Kalman's filter to results of measurements. Because of its non-linereaty.
 
-Woth to note, in all cases I used a *magic_coefficient* to transform odometer's data into velocity. It equals 0.055 which near to the 'real' value 2*pi*2.7/360~0.047
+Woth to note, in all cases I used a *magic_coefficient* to transform odometer's data into velocity. It equals 0.055 which near to the 'real' value 2\*pi\*2.7/360~0.047
 
 ### Following by odometer
 ![alt text](https://github.com/prokop7/diff-drive-robot-trajectory/blob/master/plots/wheels.png "By odometer")
