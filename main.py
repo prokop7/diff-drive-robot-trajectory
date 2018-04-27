@@ -37,17 +37,18 @@ def print_plot(plots=None, coords=None, bounded=True, title=None):
             y_plot.append(tuple[1])
 
     def print_p(xlabel, t_plot, y_axis, boundary=None):
-        plt.ylabel(xlabel)
-        plt.xlabel("t")
+        # plt.ylabel(xlabel)
+        # plt.xlabel("t")
         plt.plot(t_plot, y_axis)
-        if title is not None:
-            plt.title(title)
+        # if title is not None:
+        #     plt.title(title)
         if boundary is not None:
             plt.axis(boundary)
         plt.show()
 
-    print_p("x(t)", t_plot, x_plot, [1509976324.240, 1509976340.20860, 0, 140] if bounded else None)
-    print_p("y(t)", t_plot, y_plot, [1509976324.240, 1509976340.20860, -10, 40] if bounded else None)
+    # print_p("x(t)", t_plot, x_plot, [1509976324.240, 1509976340.20860, 0, 140] if bounded else None)
+    # print_p("y(t)", t_plot, y_plot, [1509976324.240, 1509976340.20860, -10, 40] if bounded else None)
+    print_p("w(t)", y_plot, x_plot, [-10, 40, 0, 140] if bounded else None)
 
 
 def follow_by_wheels():
@@ -285,7 +286,7 @@ def sensor_fusion():
         x_g.append(coords_gyro[i][1])
     x_matrix = np.matrix([x_w, x_g]).transpose()
     Q = 0.5
-    R = np.matrix([[gyro_noise[1], 0], [0, 100]]).transpose()
+    R = np.matrix([[100, 0], [0, 100]]).transpose()
 
     y_w = [0]
     y_g = [0]
@@ -294,9 +295,39 @@ def sensor_fusion():
         y_g.append(coords_gyro[i][2])
     y_matrix = np.matrix([y_w, y_g]).transpose()
 
-    x_kalman = kalman.apply_filter(x_matrix, Q, R, (len(x_w),)).tolist()
-    y_kalman = kalman.apply_filter(y_matrix, Q, R, (len(y_w),)).tolist()
+    x_kalman = kalman.apply_filter_x(x_matrix, Q, R, (len(x_w),)).tolist()
+    y_kalman = kalman.apply_filter_x(y_matrix, Q, R, (len(y_w),)).tolist()
     print_plot(plots=(t, y_kalman, x_kalman), title="Kalman with 2 sensors")
+
+
+def particle_filter():
+    vl = []
+    vr = []
+    t = []
+    dist = [sonar_zero_distance]
+    angle = [0]
+
+    with open('log_robot_2.csv') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=';')
+        is_init = False
+
+        for row in spamreader:
+            try:
+                t.append(float(row[0]))
+                if not is_init:
+                    t.append(float(row[0]))
+                    vl.append((float(row[3])) * magic_coeff)
+                    vr.append((float(row[4])) * magic_coeff)
+                    is_init = True
+                dist.append(float(row[1]))
+                angle.append(float(row[2]) * math.pi / 180)
+                vl.append((float(row[3])) * magic_coeff)
+                vr.append((float(row[4])) * magic_coeff)
+            except ValueError:
+                pass
+
+    particle.run_pf1(N=5000, plot_particles=True, vl=vl, vr=vr, t=t, angle=angle, dist=dist,
+                     initial_x=(10, 10, np.pi / 4))
 
 
 if __name__ == '__main__':
@@ -308,6 +339,6 @@ if __name__ == '__main__':
 
     # sensor_fusion()
     seed(2)
-    particle.run_pf1(N=50000, plot_particles=False)
+    particle_filter()
 
     # main2()
