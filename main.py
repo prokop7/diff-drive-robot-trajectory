@@ -2,8 +2,13 @@ import math
 import csv
 import numpy as np
 from math import sin, cos
+
+from numpy.random.mtrand import seed
+
 import kalman
 import matplotlib.pyplot as plt
+
+import particle
 
 magic_coeff = 0.055
 wheel_radius = 2.7
@@ -293,6 +298,7 @@ def sensor_fusion():
     y_kalman = kalman.apply_filter(y_matrix, Q, R, (len(y_w),)).tolist()
     print_plot(plots=(t, y_kalman, x_kalman), title="Kalman with 2 sensors")
 
+
 if __name__ == '__main__':
     # follow_by_wheels()
     # follow_by_gyro_kalman()
@@ -300,6 +306,8 @@ if __name__ == '__main__':
     # print_log_camera()
     # print_log_camera_kalman()
 
-    sensor_fusion()
+    # sensor_fusion()
+    seed(2)
+    particle.run_pf1(N=50000, plot_particles=False)
 
     # main2()
